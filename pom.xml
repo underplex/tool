@@ -2,12 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.underplex.infowrap</groupId>
+	<groupId>com.underplex</groupId>
 	<artifactId>tool</artifactId>
 	<version>1.1.1</version>
 	<packaging>jar</packaging>
 
-	<name>tool</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -58,4 +57,6 @@
 		</plugins>
 	</reporting>
 
+	<name>tool</name>
+	<description>	</description>
 </project>
