@@ -50,7 +50,7 @@ public interface Specification<E> {
 	 * @param iteration
 	 *            number of the iteration in the simulation
 	 */
-	List<E> assignStrategies( int iteration );
+	List<E> assignStrategies(int iteration);
 
 	
 }
