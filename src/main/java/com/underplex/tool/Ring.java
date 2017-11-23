@@ -1,6 +1,5 @@
 package com.underplex.tool;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,9 +7,12 @@ import java.util.List;
  * <p>
  * Rings contain no pair of elements {@code e1} and {@code e2} such that {@code e1.equals(e2)}. That is, rings cannot contain duplicates.
  * <p>
+ * For this reason, it is not recommended to use elements where some instances are equal to others but which are not completely interchangeable in practice.
+ * Rings are designed not to take duplicates in order to prevent the same element from being added twice inadvertently.
+ * <p>
  * Rings cannot contain {@code null} elements.
  * <p>
- * Ring elements are ordered and indexed like lists. The element with index 0 is considered the first element.
+ * ArrayRing elements are ordered and indexed like lists. The element with index 0 is considered the first element.
  * <p>
  * Rings may have 0, 1, or any number of elements. If it has 0 elements, it is considered empty.
  * <p>
@@ -21,23 +23,15 @@ import java.util.List;
  * <p>
  * A ring is already fairly flexible, and so the methods have been made {@code final} in many cases since no overriden behavior makes sense.
  * <p>
- * Rings were designed to model circles of players in a board game, where each element might represent a player in the game. The turns start with the first player and go around the circle, returning
- * to the first player, but the first player may sometimes change depending on the game.
+ * Rings are meant to model circles of players in a board game, where each element might represent a player in the game. The turns start with the first player and go around the circle, returning
+ * to the first player, but the player considered "first" (and all the implied ordering of the players after that may sometimes change depending on the game. Players also may leave the circle,
+ * in which case their immediate neighbors become neighbors themselves, "sewing up" the circle.
  * @param <E> - the type of elements held in this collection
  *
  * @author Brandon Irvine
  */
-public class Ring<E> {
+public interface Ring<E> {
 
-	/**
-	 * The roster can never be null.
-	 */
-	private final List<E> roster;
-	
-	public Ring(){
-		this.roster = new ArrayList<E>();
-	}
-	
 	/**
 	 * Inserts the specified element at the specified position in this ring. 
 	 * <p>
@@ -51,33 +45,15 @@ public class Ring<E> {
 	 * @throws IndexOutOfBoundsException iff the index is out of range (index < 0 || index > size())
 	 * @throws NullPointerException iff the specified element is null
 	 */
-	public final boolean add(int index, E element){
-		if ((index < 0 || index > size())){
-			throw new IndexOutOfBoundsException();
-		} else if (element == null){
-			throw new NullPointerException();
-		} else if (!roster.contains(element)){
-			roster.add(index,element);
-			return true;
-		}
-		return false;
-	}
-	
+	boolean add(int index, E element);
+
 	/**
 	 * Inserts the specified element at the first position of this ring.
 	 * @param element - the element to add
 	 * @return {@code true} iff the element was not already present and was added to this ring
 	 * @throws NullPointerException iff the specified element is null 
 	 */
-	public final boolean addFirst(E element){
-		if (element == null){
-			throw new NullPointerException();
-		} else if (this.roster.contains(element)){
-			return false;
-		}
-		roster.add(0, element);
-		return true;
-	}
+	boolean addFirst(E element);
 
 	/**
 	 * Inserts the specified element at the last position of this ring.
@@ -85,16 +61,8 @@ public class Ring<E> {
 	 * @return {@code true} iff the element was not already present and was added to this ring
 	 * @throws NullPointerException iff the specified element is null 
 	 */
-	public final boolean addLast(E element){
-		if (element == null){
-			throw new NullPointerException();
-		} else if (this.roster.contains(element)){
-			return false;
-		}
-		roster.add(element);
-		return true;
-	}
-	
+	boolean addLast(E element);
+
 	/**
 	 * Gives the specified element, which should already be in this ring, the index of 0, making it first, and shifts all other indices accordingly without changing relative positions.
 	 * <p>
@@ -104,74 +72,48 @@ public class Ring<E> {
 	 * @param element - element to be made first
 	 * @return {@code true} iff the element was found and the ordering of the ring changed
 	 * @throws NullPointerException iff the specified element is null
-	 * @throws IllegalArgumentException iff this ring does not already containt the specified element
+	 * @throws IllegalArgumentException iff this ring does not already contain the specified element
 	 */
-	public final boolean makeFirst(E element){
-		if (element == null){
-			throw new NullPointerException();
-		} else if (!roster.contains(element)){
-			throw new IllegalArgumentException();
-		} else if (!this.roster.get(0).equals(element)){
-			List<E> copy = new ArrayList<E>(roster);
-			roster.clear();
-			int p = copy.indexOf(element);
-			
-			for (int i = p; i < copy.size(); i++){
-				roster.add(copy.get(i));
-			}
-			for (int i = 0; i < p; i++){
-				roster.add(copy.get(i));
-			}
-			return true;
-		}
-		return false;
-	}
-	
+	boolean makeFirst(E element);
+
 	/**
 	 * Removes all of the elements from this ring.
 	 */
-	public final void clear(){
-		roster.clear();
-	}	
-	
+	void clear();
+
 	/**
 	 * Returns the first element of this ring without removing it, or {@code null} if the ring is empty.
 	 * @return first element
 	 */
-	public final E getFirst(){
-		if (roster.isEmpty()){
-			return null;
-		}
-		return roster.get(0);
-	}
-	
+	E getFirst();
+
 	/**
 	 * Returns the last element of this ring without removing it, or {@code null} if the ring is empty.
 	 * @return last element
 	 */
-	public final E getLast(){
-		if (roster.isEmpty()){
-			return null;
-		}
-		return roster.get(roster.size() - 1);
-	}
+	E getLast();
+
+	/**
+	 * Returns the element of this ring with the specified index.
+	 * <p>
+	 * Implicitly, if this ring is empty, this method will always through an exception since it will have no valid indices.
+	 * @return element at specified index
+	 * @throws IndexOutOfBoundsException iff the index is out of range (index < 0 || index >= size())
+	 */
+	E get(int index);
 
 	/*
 	 * Returns the index of the specified element in this ring, or -1 if this list does not contain the element.
 	 * @return int index of the specified element or -1
 	 */
-	public final int indexOf(E element){
-		return roster.indexOf(element);
-	}
-	
+	int indexOf(E element);
+
 	/**
 	 * Returns {@code true} true iff this ring contains no elements.
 	 * @return {@code true} true iff this ring contains no elements
 	 */
-	public final boolean isEmpty(){
-		return roster.isEmpty();
-	}
-	
+	boolean isEmpty();
+
 	/**
 	 * Returns the element in the ring after {@code element}.
 	 * <p>
@@ -186,26 +128,7 @@ public class Ring<E> {
 	 * @return the element with the next position after the specified element
 	 * @throws NullPointerException if the specified element is null
 	 */
-	public final E next(E previousElement){
-		
-		if (previousElement == null){
-			throw new NullPointerException();
-		}
-
-		if (roster.contains(previousElement)){
-			if (roster.size() > 1){
-				int i = roster.indexOf(previousElement);
-				if (i == roster.size() - 1){
-					return roster.get(0);
-				} else {
-					return roster.get(i + 1);
-				}
-			} else {
-				return previousElement;
-			}	
-		}
-		return null;
-	}
+	E next(E previousElement);
 
 	/**
 	 * Returns the element in the ring before {@code element}.
@@ -221,25 +144,7 @@ public class Ring<E> {
 	 * @return the element with the previous position before the specified element
 	 * @throws NullPointerException if the specified element is null
 	 */
-	public final E previous(E nextElement){
-		if (nextElement == null){
-			throw new NullPointerException();
-		}
-
-		if (roster.contains(nextElement)){
-			if (roster.size() > 1){
-				int i = roster.indexOf(nextElement);
-				if (i == 0){
-					return roster.get(roster.size() - 1);
-				} else {
-					return roster.get(i - 1);
-				}
-			} else {
-				return nextElement;
-			}	
-		}
-		return null;
-	}
+	E previous(E nextElement);
 
 	/**
 	 * Removes the specified element from this ring, if it is present.
@@ -253,36 +158,26 @@ public class Ring<E> {
 	 * @return true iff this ring contained the specified element
 	 * @throws NullPointerException if the specified element is null
 	 */
-	public final boolean remove(E element){
-		if (element == null){
-			throw new NullPointerException();
-		}
-		return roster.remove(element);
-	}
-	
+	boolean remove(E element);
+
 	/**
 	 * Returns true iff this ring contains the specified element.
 	 * @return {@code true} iff this ring contains the specified element 
 	 */
-	public final boolean contains(E element){
-		return roster.contains(element);
-	}
-	
+	boolean contains(E element);
+
 	/**
 	 * Returns the number of elements in this ring.
 	 * @return the number of elements in this ring
 	 */
-	public final int size(){
-		return roster.size();
-	}
-	
+	int size();
+
 	/**
 	 * Returns elements in order as a {@code List}, with the first element at 0.
 	 * <p>
 	 * The returned List is not the data structure underlying this ring, so changing it will not change this ring.
 	 * @return List of elements in order
 	 */
-	public final List<E> toList(){
-		return new ArrayList<E>(this.roster);
-	}
+	List<E> toList();
+
 }
