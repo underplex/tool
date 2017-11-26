@@ -1,5 +1,6 @@
 package com.underplex.tool;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,12 +10,16 @@ import java.util.List;
  * 
  * @author Brandon Irvine
  */
-public class ArrayRing<E> implements Ring<E> {
+public class ArrayRing<E> implements Ring<E>, Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	/**
 	 * The roster can never be null.
+	 * <p>
+	 * This is implemented as an ArrayList because that makes it serializable.
 	 */
-	private final List<E> roster;
+	private final ArrayList<E> roster;
 	
 	public ArrayRing(){
 		this.roster = new ArrayList<E>();
